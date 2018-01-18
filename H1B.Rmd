@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 
@@ -15,16 +17,14 @@ library(maps)
 ```   
 
 
-because this is suck a large data set I would take the time to get a test of what read code is faster. I will compare read.csv with stringAsFactors = FALSE and read_csv from the readr package.   
-```{r}
-system.time(visa <- read.csv("h1b_kaggle.csv", stringsAsFactors = FALSE))
-system.time(visa <- read_csv("h1b_kaggle.csv", ))
-
+because this is such a large data set I would take the time to get a test of what reads code into R faster. I will compare read.csv with stringAsFactors = FALSE and read_csv from the readr package.   
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+system.time(visa <- read_csv("h1b_kaggle.csv"))
 ```
 This is a large data set 3002458 rows read_csv read the 469 MB into R in 8.39 seconds, it also shows the types avoiding having to call str(). It takes the standard read.csv 49.353 seconds so this over a 5X speed increase.     
    
 I would like to see the top 20 companies that are sponsoring H1B visas.   
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 top_employers <- visa %>% group_by(EMPLOYER_NAME) %>% 
                           summarise(count = n(), percent = round(count*100/nrow(visa), 2)) %>%
                           arrange(desc(count)) %>%
@@ -38,11 +38,12 @@ ggplot(top_employers, aes(x = reorder(EMPLOYER_NAME, percent),
                       theme(legend.position = "none") +
                       coord_flip()
 ```   
+
 This is the top only the top so making up `r sum(top_employers$percent)` percent of all the employers with H1B visa.
    
       
 Lets take a look and why the most H1Bs are working. 
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 visa <- visa %>% separate(WORKSITE, c("city", "state"), ",") %>% arrange(state)
 
 by_state <- visa %>% group_by(state) %>% 
@@ -58,12 +59,11 @@ ggplot(by_state, aes(x = reorder(state, percent),
                   labs(x = "State") +
                   theme(legend.position = "none") +
                   coord_flip()
+```    
 
-
-```   
 Here we can see that the top 3 states California, New York and Texas, are also the states with the largest populations and the largest GDPs in the United States.   
     
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 by_city <- visa %>% group_by(city) %>% 
                      summarise(count = n(), percent = round(count*100/nrow(visa),2)) %>% 
                      arrange(desc(count)) %>% 
@@ -77,12 +77,13 @@ ggplot(by_city, aes(x = reorder(city, percent),
                   labs(x = "City") +
                   theme(legend.position = "none") +
                   coord_flip()
-```   
+```    
+
 Looking at the cities that are in the top 20 it is the same the largest population in the USA is New York is number 1 Houston is number 4 and San Francisco is number 14. The top 5 New York, Houston, San Francisco, Atlanta and Chicogo are also on a list of cities with the highest GDP in the United States.   
    
       
 Lets see what kind of jobs are being done by H1Bs.   
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 jobs <- visa %>% group_by(JOB_TITLE) %>% 
                      summarise(count = n(), percent = round(count*100/nrow(visa),2)) %>% 
                      arrange(desc(count)) %>% 
@@ -95,7 +96,7 @@ ggplot(jobs, aes(x = reorder(JOB_TITLE, percent),
                   labs(x = "Job Title") +
                   theme(legend.position = "none") +
                   coord_flip()
-```   
+```      
    
 The top three are computer programmers, this is interesting because of all the news saying that programing was being done overseas, it is also a good sign that there are that many jobs that need to be filled. 
 
