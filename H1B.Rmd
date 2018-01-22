@@ -30,8 +30,11 @@ Before looking at the data I would like to better understand the process a H1b a
 ![Caption for the picture.](H1B-Application-Process.png)
    
       
-This dataset is from the website Kaggle.com that being said the data may not be 100 percent correct. Reading the forums on the kaggle website one field I and other found challenging is what does certified- withdrawn, withdrawn , certified and certified withdrawn mean? A user of the forum posted this:    
+This dataset is from the website Kaggle.com that being said the data may not be 100 percent correct. Reading the forums on the kaggle website one field I and other found challenging is what does certified- withdrawn, withdrawn , certified and certified withdrawn mean?   
+The metadata says   
+**"The CASE_STATUS field denotes the status of the application after LCA processing. Certified applications are filed with USCIS for H-1B approval. CASE_STATUS: CERTIFIED does not mean the applicant got his/her H-1B visa approved, it just means that he/she is eligible to file an H-1B"**
    
+A user of the forum posted this:    
 As part of H-1 processing, first step is to file LCA w/ DOL.    
 
 Certified: Employer filed the LCA, which was approved by DOL   
@@ -52,8 +55,9 @@ ggplot(status, aes(x = reorder(CASE_STATUS, status),
                       theme(legend.position = "none") +
                       coord_flip()
 
-```   
-87.1 percent of applicants got a certified status from 2011 to 2016.   
+```    
+
+87.1 percent of applicants got a certified status from 2011 to 2016. This means that 87.1 percent were told by a company that they would sponcer them if they applied for a visa.   
 
    
 I would like to see the top 20 companies that are sponsoring H1B visas.   
@@ -75,7 +79,7 @@ ggplot(top_employers, aes(x = reorder(EMPLOYER_NAME, percent),
 This is the top only the top so making up `r sum(top_employers$percent)` percent of all the employers with H1b applicants.
    
       
-Lets take a look at where the most H1Bs are working. 
+Lets take a look at where the most H1Bs would working. 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 h1b <- h1b %>% separate(WORKSITE, c("city", "state"), ",") %>% arrange(state)
 
@@ -115,12 +119,12 @@ ggplot(by_city, aes(x = reorder(city, percent),
 Looking at the cities that are in the top 20 it is the same the largest population in the USA is New York, Houston is number 4 and San Francisco is number 14. The top 5 states New York, Houston, San Francisco, Atlanta and Chicago are also on a list of cities with the highest GDP in the United States.   
    
       
-Lets see what kind of jobs are being done by H1Bs.   
+Lets see what kind of jobs are being offied.   
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 jobs <- h1b %>% group_by(JOB_TITLE) %>% 
                      summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
                      arrange(desc(count)) %>% 
-                     top_n(50, wt = count)
+                     top_n(20, wt = count)
 
 ggplot(jobs, aes(x = reorder(JOB_TITLE, percent),
                                 y = percent, fill = JOB_TITLE), main = "Precent by state") +
@@ -149,9 +153,10 @@ ggplot(data = subset(h1b, !is.na(h1b$FULL_TIME_POSITION)),
                   theme(legend.position = "none") +
                   scale_y_continuous(breaks = seq(1,100,10))
 ```    
-We can see that most positions are full time. Because the data set is from 2011 to 2016 I can see if this has changed over the years.   
+
+We can see that most positions are full time. Because the data set is from 2011 to 2016 I want to see if this has changed over the years.   
    
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 full_time <- h1b %>% group_by(YEAR, FULL_TIME_POSITION) %>% 
                      summarise(count = n()) %>% 
                      filter(!is.na(YEAR) & !is.na(FULL_TIME_POSITION))
@@ -190,7 +195,7 @@ kable(round(median(wage$PREVAILING_WAGE, na.rm = TRUE),1))
 The mean wage is 69166.6 USD and the median wage is 64661 USD. The mean may be skewed on the higher end a little based on the histogram above.     
    
 How has the median wage changed from 2011 to 2016?   
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 med_wage <- wage %>% group_by(YEAR) %>%
                      summarise(median_wage = median(PREVAILING_WAGE))    
 
@@ -199,18 +204,19 @@ ggplot(data = med_wage, aes(x = as.numeric(as.character(YEAR)), y = median_wage)
     geom_point() +
     labs(x = "Year", y = "Median Wage", title = "median salary ")
 ```   
+
 The salary has not gone up that much there was a median salary increase of 7217.6 US dollars from 2011 to 2016.   
    
 
 Above we saw the top 20 job titles now I want to look at jobs that are data scientist or data analyst as I am working on a masters in data science. 
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 data_jobs <- h1b %>% filter(JOB_TITLE == "DATA SCIENTIST" |JOB_TITLE == "DATA ANALYST") %>%
                      arrange(JOB_TITLE) 
 ```   
    
 There are a total of 5737 rows with these two job titles in this data est. With this data I can get an idea of the pay, locations with the highest need and number of postions per year.   
 Agian we will look at the top 20 employers this time only for data analysts and data scientists.   
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 top_employers_data <- data_jobs %>% group_by(EMPLOYER_NAME) %>% 
                           summarise(count = n()) %>%
                           arrange(desc(count)) %>%
@@ -224,9 +230,10 @@ ggplot(top_employers_data, aes(x = reorder(EMPLOYER_NAME, count),
                       theme(legend.position = "none") +
                       coord_flip()
 ```   
+
 Most of the big name tech componies are on that list but the number of data people is lower than I would have thought.    
 I want to look what city the jobs are in   
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 city_data <- data_jobs %>% group_by(city) %>% 
                           summarise(count = n()) %>%
                           arrange(desc(count)) %>%
@@ -240,8 +247,9 @@ ggplot(city_data, aes(x = reorder(city, count),
                       theme(legend.position = "none") +
                       coord_flip()
 ```   
+
 New York tops the list again here followed close by San Francisco then it is the top United States citys as you go down the list. This is interesting but with such a small data set maybe looking at it by state would be better.   
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 state_data <- data_jobs %>% group_by(state) %>% 
                           summarise(count = n()) %>%
                           arrange(desc(count)) %>%
@@ -256,7 +264,43 @@ ggplot(state_data, aes(x = reorder(state, count),
                       coord_flip()
 ```   
    
-Here again I am showing only the top 20 but when I look at the whole data set 46 states had at least one H1b applicant. The state I am from Minnesota is number 16 on the list but with only 72 applicants. California had more than double New York, my guess is this is where most of the big tech componies are located. 
+Here again I am showing only the top 20 but when I look at the whole data set 46 states had at least one H1b applicant. The state I am from Minnesota is number 16 on the list but with only 72 applicants. California had more than double New York, but this is where most of the big tech componies are located.   
+   
+Next lets look at the salory for the data scientest and data analysts.    
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+wage_data <- subset(data_jobs, data_jobs$PREVAILING_WAGE < quantile(data_jobs$PREVAILING_WAGE, 0.99, na.rm = T))
+
+ggplot(wage_data, 
+    aes(x = PREVAILING_WAGE/1000)) +
+    geom_histogram(color = "black", fill = "red", binwidth = 2.5) +
+    scale_x_continuous(breaks = seq(0,150,25)) +
+    scale_y_continuous(breaks = seq(0,500000,25000)) +
+    labs(x = "Salary")
+
+kable(round(mean(wage_data$PREVAILING_WAGE, na.rm = TRUE),1))
+kable(round(median(wage_data$PREVAILING_WAGE, na.rm = TRUE),1))
+```   
+There are some jobs in this data set with low pay under $25000 but the median salory is 63814 USD.   
+   
+How has the salory changed over the years from 2011 to 2016?   
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+wage_data <- data_jobs %>% group_by(YEAR) %>% 
+    summarise(median_salary = median(PREVAILING_WAGE), count = n())
+
+ggplot(data = wage_data, aes(x = as.numeric(as.character(YEAR)), y = median_salary)) +
+    geom_line() +
+    geom_point() +
+    labs(x = "YEAR", y = "Median Salary", title = "salary trend")
+```   
+This is not bad the trend is up more the $10000   
+   
+
+
+
+   
+
+    
+
 
    
 
