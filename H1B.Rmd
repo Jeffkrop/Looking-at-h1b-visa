@@ -1,8 +1,8 @@
 ---
-title: "R Notebook"
-output:
-  html_document: default
-  html_notebook: default
+title: "H1b Visa"
+name: "Jeff Kropelnicki"
+date: "`r format(Sys.Date())`"
+output: github_document
 ---
 
 
@@ -81,7 +81,7 @@ This is the top only the top so making up `r sum(top_employers$percent)` percent
       
 Lets take a look at where the most H1Bs would working. 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
-h1b <- h1b %>% separate(WORKSITE, c("city", "state"), ",") %>% arrange(state)
+h1b <- h1b %>% separate(WORKSITE, c("city", "state"), ", ") %>% arrange(state)
 
 by_state <- h1b %>% group_by(state) %>% 
                      summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
@@ -280,7 +280,7 @@ ggplot(wage_data,
 kable(round(mean(wage_data$PREVAILING_WAGE, na.rm = TRUE),1))
 kable(round(median(wage_data$PREVAILING_WAGE, na.rm = TRUE),1))
 ```   
-There are some jobs in this data set with low pay under $25000 but the median salory is 63814 USD.   
+There are some jobs in this data set with low pay under $25000 but the median salory is 63814 USD. This may be lower because I am looking at two different postions data analyst and data scientist. The data scientist role tends to pay a higher wage. 
    
 How has the salory changed over the years from 2011 to 2016?   
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
@@ -292,7 +292,50 @@ ggplot(data = wage_data, aes(x = as.numeric(as.character(YEAR)), y = median_sala
     geom_point() +
     labs(x = "YEAR", y = "Median Salary", title = "salary trend")
 ```   
-This is not bad the trend is up more the $10000   
+
+This is not bad the trend is up more the $10000 and this could be due to high pay for data scientists in the past year as the market picked up.    
+   
+**Because I am working on a Masters in Data Science in Minnesota I would like to look at the data for only my home state.**   
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+mn_h1b <- h1b %>% filter(state == "MINNESOTA")
+
+states <- map_data("state")
+
+MN_map <- subset(states, region %in% "minnesota")
+ggplot(data = MN_map) +
+  geom_polygon(aes(x = long, y = lat, group = group), fill = "palegreen", color = "black") + 
+  coord_fixed(1.3) +
+  geom_point(
+    data = subset(mn_h1b, !is.na(mn_h1b$lon)), aes(lon, lat ),color = "red", size = 1) 
+```    
+
+Looking at the map most are located in the Twin Cities metro but when I look at the data set there are 2465 locations that do no have a latitude and longitude. A quick look at some of the lacations that are missing I see places that are not in the metro like Grand Rapids, Pipestone, Red Wing and Alexandria.   
+   
+Lets see what the top employers are in Minnesota.   
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+top_employers_mn <- mn_h1b %>% group_by(EMPLOYER_NAME) %>% 
+                          summarise(count = n()) %>%
+                          arrange(desc(count)) %>%
+                          top_n(20, wt = count) 
+
+ggplot(top_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
+                                y = count, fill = EMPLOYER_NAME)) + 
+                      geom_bar(stat = "identity")  +
+                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
+                      labs(x = "Employer Name", y = "Number of jobs") +  
+                      theme(legend.position = "none") +
+                      coord_flip()
+```   
+   
+The top employer is Tata Consultancy Services Limited, Infosys Limited, Wipro Limited and Accenture LLP are all employment agencies that place people at different worksites. The Mayo Clinic is a large employer in Rochester Minnesota. The Univercity of Minnesota has also sponsered a lot of people but when you look at the list it looks like it is students, researchers, people working on thier postdoctoral and assistant professor. 
+            
+
+
+
+
+
+
+
    
 
 
