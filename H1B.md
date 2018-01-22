@@ -7,7 +7,7 @@ A closer look at the H1b visa applications from 2011 to 2016. This is an interes
 because this is such a large data set I want to take the time to test the read times between read.csv with stringAsFactors = FALSE and read\_csv from the readr package.
 
     ##    user  system elapsed 
-    ##   7.889   0.347   8.248
+    ##   8.108   0.352   8.487
 
 3002458 rows read\_csv read the 469 MB file into R in under 8 seconds, it also shows the data types meaning I can avoid having to call str(). It takes the standard read.csv 49.353 seconds, this over a 5X speed increase.
 
