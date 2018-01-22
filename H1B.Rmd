@@ -6,9 +6,10 @@ output:
 ---
 
 
-A closer look at the H1b visas from 2011 to 2016. This is an interesting data set because of the latitudes and longitudes and what we can learn from locations.    
+A closer look at the H1b visa applications from 2011 to 2016. This is an interesting data set today because of all the talk of cutting back on the number of H1b visas that will be allowed in the upcoming years. Thought this document I will explore the 3002458 rows in this data set.
    
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
+library(knitr)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -17,16 +18,48 @@ library(maps)
 ```   
 
 
-because this is such a large data set I would take the time to get a test of what reads code into R faster. I will compare read.csv with stringAsFactors = FALSE and read_csv from the readr package.   
+because this is such a large data set I want to take the time to test the read times between read.csv with stringAsFactors = FALSE and read_csv from the readr package.   
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
-system.time(visa <- read_csv("h1b_kaggle.csv"))
+system.time(h1b <- read_csv("h1b_kaggle.csv"))
 ```
-This is a large data set 3002458 rows read_csv read the 469 MB into R in 8.39 seconds, it also shows the types avoiding having to call str(). It takes the standard read.csv 49.353 seconds so this over a 5X speed increase.     
+3002458 rows read_csv read the 469 MB file into R in under 8 seconds, it also shows the data types meaning I can avoid having to call str(). It takes the standard read.csv 49.353 seconds, this over a 5X speed increase.    
+   
+      
+Before looking at the data I would like to better understand the process a H1b applicant must take to work in the United States. I found this infographic from (http://www.immi-usa.com/h1b-application-process-step-by-step-guide/).
+
+![Caption for the picture.](H1B-Application-Process.png)
+   
+      
+This dataset is from the website Kaggle.com that being said the data may not be 100 percent correct. Reading the forums on the kaggle website one field I and other found challenging is what does certified- withdrawn, withdrawn , certified and certified withdrawn mean? A user of the forum posted this:    
+   
+As part of H-1 processing, first step is to file LCA w/ DOL.    
+
+Certified: Employer filed the LCA, which was approved by DOL   
+Certified Withdrawn: LCA was approved but later withdrawn by employer   
+Withdrawn: LCA was withdrawn by employer before approval   
+Denied: LCA was denied by DOL.   
+I want to have a look at how this looks in the data.       
+```{r}
+status <- h1b %>% filter(!is.na(CASE_STATUS)) %>%
+                  group_by(CASE_STATUS) %>% 
+                  summarise(status = round(n()*100/nrow(h1b),1))
+
+ggplot(status, aes(x = reorder(CASE_STATUS, status),
+                                y = status, fill = CASE_STATUS)) + 
+                      geom_bar(stat = "identity")  +
+                      geom_text(aes(label = status), vjust = 1, hjust = .5) + 
+                      labs(x = "Status", y = "percentage)") +  
+                      theme(legend.position = "none") +
+                      coord_flip()
+
+```   
+87.1 percent of applicants got a certified status from 2011 to 2016.   
+
    
 I would like to see the top 20 companies that are sponsoring H1B visas.   
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
-top_employers <- visa %>% group_by(EMPLOYER_NAME) %>% 
-                          summarise(count = n(), percent = round(count*100/nrow(visa), 2)) %>%
+top_employers <- h1b %>% group_by(EMPLOYER_NAME) %>% 
+                          summarise(count = n(), percent = round(count*100/nrow(h1b), 2)) %>%
                           arrange(desc(count)) %>%
                           top_n(20, wt = count) 
 
@@ -34,20 +67,20 @@ ggplot(top_employers, aes(x = reorder(EMPLOYER_NAME, percent),
                                 y = percent, fill = EMPLOYER_NAME)) + 
                       geom_bar(stat = "identity")  +
                       geom_text(aes(label = percent), vjust = 1, hjust = .5) + 
-                      labs(x = "EMPLOYER_NAME", y = "Petitions Made(in percentage)") +  
+                      labs(x = "Employer Name", y = "Number of jobs") +  
                       theme(legend.position = "none") +
                       coord_flip()
 ```   
 
-This is the top only the top so making up `r sum(top_employers$percent)` percent of all the employers with H1B visa.
+This is the top only the top so making up `r sum(top_employers$percent)` percent of all the employers with H1b applicants.
    
       
-Lets take a look and why the most H1Bs are working. 
+Lets take a look at where the most H1Bs are working. 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
-visa <- visa %>% separate(WORKSITE, c("city", "state"), ",") %>% arrange(state)
+h1b <- h1b %>% separate(WORKSITE, c("city", "state"), ",") %>% arrange(state)
 
-by_state <- visa %>% group_by(state) %>% 
-                     summarise(count = n(), percent = round(count*100/nrow(visa),2)) %>% 
+by_state <- h1b %>% group_by(state) %>% 
+                     summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
                      arrange(desc(count)) %>% 
                      top_n(20, wt = count)
 
@@ -61,11 +94,11 @@ ggplot(by_state, aes(x = reorder(state, percent),
                   coord_flip()
 ```    
 
-Here we can see that the top 3 states California, New York and Texas, are also the states with the largest populations and the largest GDPs in the United States.   
+Here we can see that the top 3 states California, New York and Texas, are also the states with the largest populations and the largest state GDP in the United States.   
     
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
-by_city <- visa %>% group_by(city) %>% 
-                     summarise(count = n(), percent = round(count*100/nrow(visa),2)) %>% 
+by_city <- h1b %>% group_by(city) %>% 
+                     summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
                      arrange(desc(count)) %>% 
                      top_n(20, wt = count)
 
@@ -79,15 +112,15 @@ ggplot(by_city, aes(x = reorder(city, percent),
                   coord_flip()
 ```    
 
-Looking at the cities that are in the top 20 it is the same the largest population in the USA is New York is number 1 Houston is number 4 and San Francisco is number 14. The top 5 New York, Houston, San Francisco, Atlanta and Chicogo are also on a list of cities with the highest GDP in the United States.   
+Looking at the cities that are in the top 20 it is the same the largest population in the USA is New York, Houston is number 4 and San Francisco is number 14. The top 5 states New York, Houston, San Francisco, Atlanta and Chicago are also on a list of cities with the highest GDP in the United States.   
    
       
 Lets see what kind of jobs are being done by H1Bs.   
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
-jobs <- visa %>% group_by(JOB_TITLE) %>% 
-                     summarise(count = n(), percent = round(count*100/nrow(visa),2)) %>% 
+jobs <- h1b %>% group_by(JOB_TITLE) %>% 
+                     summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
                      arrange(desc(count)) %>% 
-                     top_n(20, wt = count)
+                     top_n(50, wt = count)
 
 ggplot(jobs, aes(x = reorder(JOB_TITLE, percent),
                                 y = percent, fill = JOB_TITLE), main = "Precent by state") +
@@ -98,7 +131,146 @@ ggplot(jobs, aes(x = reorder(JOB_TITLE, percent),
                   coord_flip()
 ```      
    
-The top three are computer programmers, this is interesting because of all the news saying that programing was being done overseas, it is also a good sign that there are that many jobs that need to be filled. 
+The top three are some type of computer programmer, this is interesting because of all the news saying that programming was being done overseas, it is also a good sign that there are that many jobs that need to be filled.    
+   
+Full time verse part time. Full time means that the applicant is hired by the company and not full time means that it is a contract position. 
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+kable(as.data.frame(prop.table(table(h1b$FULL_TIME_POSITION))*100))
+```    
+   
+   
+   
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+ggplot(data = subset(h1b, !is.na(h1b$FULL_TIME_POSITION)), 
+                  aes(x = FULL_TIME_POSITION),
+                  y = ((..count..)*100/nrow(h1b)), fill = FULL_TIME_POSITION) +
+                  geom_bar() +
+                  labs(x = "Full time") +
+                  theme(legend.position = "none") +
+                  scale_y_continuous(breaks = seq(1,100,10))
+```    
+We can see that most positions are full time. Because the data set is from 2011 to 2016 I can see if this has changed over the years.   
+   
+```{r}
+full_time <- h1b %>% group_by(YEAR, FULL_TIME_POSITION) %>% 
+                     summarise(count = n()) %>% 
+                     filter(!is.na(YEAR) & !is.na(FULL_TIME_POSITION))
+
+ggplot(full_time,
+        aes(x = as.numeric(as.character(YEAR)), 
+            y = count/1000, color = FULL_TIME_POSITION)) + 
+        geom_line(na.rm = T) + 
+        geom_point(na.rm = T) +
+        scale_y_continuous(breaks = seq(0,650,40)) +
+        labs(x = "YEAR", y = "Number of positions in thousands",
+        title = "Full or part time positions")
+```   
+   
+This is interesting in 2016 this was a change from full time to part time positions. 
+
+There is a column for wage in this data set. Looking at the metadata the Prevailing Wage column is:
+
+**Prevailing Wage for the job being requested for temporary labor condition. The wage is listed at annual scale in USD. The prevailing wage for a job position is defined as the average wage paid to similarly employed workers in the requested occupation in the area of intended employment. The prevailing wage is based on the employer’s minimum requirements for the position.**   
+   
+Lets get an idea of wage over all the data.
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+wage <- subset(h1b, h1b$PREVAILING_WAGE < quantile(h1b$PREVAILING_WAGE, 0.99, na.rm = T))
+
+ggplot(wage, 
+    aes(x = PREVAILING_WAGE/1000)) +
+    geom_histogram(color = "black", fill = "red", binwidth = 2.5) +
+    scale_x_continuous(breaks = seq(0,150,25)) +
+    scale_y_continuous(breaks = seq(0,500000,25000)) +
+    labs(x = "Salary")
+
+kable(round(mean(wage$PREVAILING_WAGE, na.rm = TRUE),1))
+kable(round(median(wage$PREVAILING_WAGE, na.rm = TRUE),1))
+```   
+
+The mean wage is 69166.6 USD and the median wage is 64661 USD. The mean may be skewed on the higher end a little based on the histogram above.     
+   
+How has the median wage changed from 2011 to 2016?   
+```{r}
+med_wage <- wage %>% group_by(YEAR) %>%
+                     summarise(median_wage = median(PREVAILING_WAGE))    
+
+ggplot(data = med_wage, aes(x = as.numeric(as.character(YEAR)), y = median_wage)) +
+    geom_line() +
+    geom_point() +
+    labs(x = "Year", y = "Median Wage", title = "median salary ")
+```   
+The salary has not gone up that much there was a median salary increase of 7217.6 US dollars from 2011 to 2016.   
+   
+
+Above we saw the top 20 job titles now I want to look at jobs that are data scientist or data analyst as I am working on a masters in data science. 
+```{r}
+data_jobs <- h1b %>% filter(JOB_TITLE == "DATA SCIENTIST" |JOB_TITLE == "DATA ANALYST") %>%
+                     arrange(JOB_TITLE) 
+```   
+   
+There are a total of 5737 rows with these two job titles in this data est. With this data I can get an idea of the pay, locations with the highest need and number of postions per year.   
+Agian we will look at the top 20 employers this time only for data analysts and data scientists.   
+```{r}
+top_employers_data <- data_jobs %>% group_by(EMPLOYER_NAME) %>% 
+                          summarise(count = n()) %>%
+                          arrange(desc(count)) %>%
+                          top_n(20, wt = count) 
+
+ggplot(top_employers_data, aes(x = reorder(EMPLOYER_NAME, count),
+                                y = count, fill = EMPLOYER_NAME)) + 
+                      geom_bar(stat = "identity")  +
+                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
+                      labs(x = "Employer Name", y = "Number of jobs") +  
+                      theme(legend.position = "none") +
+                      coord_flip()
+```   
+Most of the big name tech componies are on that list but the number of data people is lower than I would have thought.    
+I want to look what city the jobs are in   
+```{r}
+city_data <- data_jobs %>% group_by(city) %>% 
+                          summarise(count = n()) %>%
+                          arrange(desc(count)) %>%
+                          top_n(20, wt = count) 
+
+ggplot(city_data, aes(x = reorder(city, count),
+                                y = count, fill = city)) + 
+                      geom_bar(stat = "identity")  +
+                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
+                      labs(x = "Employer Name", y = "Number of jobs") +  
+                      theme(legend.position = "none") +
+                      coord_flip()
+```   
+New York tops the list again here followed close by San Francisco then it is the top United States citys as you go down the list. This is interesting but with such a small data set maybe looking at it by state would be better.   
+```{r}
+state_data <- data_jobs %>% group_by(state) %>% 
+                          summarise(count = n()) %>%
+                          arrange(desc(count)) %>%
+                          top_n(20, wt = count) 
+
+ggplot(state_data, aes(x = reorder(state, count),
+                                y = count, fill = state)) + 
+                      geom_bar(stat = "identity")  +
+                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
+                      labs(x = "Employer Name", y = "Number of jobs") +  
+                      theme(legend.position = "none") +
+                      coord_flip()
+```   
+   
+Here again I am showing only the top 20 but when I look at the whole data set 46 states had at least one H1b applicant. The state I am from Minnesota is number 16 on the list but with only 72 applicants. California had more than double New York, my guess is this is where most of the big tech componies are located. 
+
+   
+
+
+
+
+
+
+
+
+
+
+      
+
 
 
 
