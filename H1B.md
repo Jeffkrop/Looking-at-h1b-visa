@@ -1,4 +1,4 @@
-H1b Visa
+H1b Visa Applications
 ================
 2018-01-23
 
@@ -7,7 +7,7 @@ A closer look at the H1b visa applications from 2011 to 2016. This is an interes
 because this is such a large data set I want to take the time to test the read times between read.csv with stringAsFactors = FALSE and read\_csv from the readr package.
 
     ##    user  system elapsed 
-    ##   9.347   0.786  11.690
+    ##   8.060   0.381   8.466
 
 3002458 rows read\_csv read the 469 MB file into R in under 8 seconds, it also shows the data types meaning I can avoid having to call str(). It takes the standard read.csv 49.353 seconds, this over a 5X speed increase.
 
@@ -17,15 +17,20 @@ Before looking at the data I would like to better understand the process a H1b a
 
 This data set is from the website Kaggle.com that being said the data may not be 100 percent correct. Reading the forums on the kaggle website one field I and other found challenging is what does certified- withdrawn, withdrawn , certified and certified withdrawn mean?
 The metadata says
+
 **"The CASE\_STATUS field denotes the status of the application after LCA processing. Certified applications are filed with USCIS for H-1B approval. CASE\_STATUS: CERTIFIED does not mean the applicant got his/her H-1B visa approved, it just means that he/she is eligible to file an H-1B"**
 
 A user of the forum posted this:
 As part of H-1 processing, first step is to file LCA w/ DOL.
 
 Certified: Employer filed the LCA, which was approved by DOL
+
 Certified Withdrawn: LCA was approved but later withdrawn by employer
+
 Withdrawn: LCA was withdrawn by employer before approval
+
 Denied: LCA was denied by DOL.
+
 I want to have a look at how this looks in the data.
 
 ``` r
@@ -49,9 +54,9 @@ ggplot(status, aes(x = reorder(CASE_STATUS, status),
 I would like to see the top 20 companies that are sponsoring H1B visas.
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
 
-This is the top only the top so making up 18.55 percent of all the employers with H1b applicants.
+This is the top 20 so making up 18.55 percent of all the employers with H1b applicants.
 
-Lets take a look at where the most H1B would working. ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
+Lets take a look at where the most H1B would be working. ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
 
 Here we can see that the top 3 states California, New York and Texas, are also the states with the largest populations and the largest state GDP in the United States.
 
@@ -100,14 +105,14 @@ How has the median wage changed from 2011 to 2016?
 
 The salary has not gone up that much there was a median salary increase of 7217.6 US dollars from 2011 to 2016.
 
-Above we saw the top 20 job titles now I want to look at jobs that are data scientist or data analyst as I am working on a masters in data science.
+Above we saw the top 20 job titles now I want to look at jobs that are **data scientist** or **data analyst** as I am working on a masters in data science.
 
 | JOB\_TITLE     |     n|
 |:---------------|-----:|
 | DATA ANALYST   |  3805|
 | DATA SCIENTIST |  1932|
 
-There are a total of 5737 rows with these two job titles in this data est. With this data I can get an idea of the pay, locations with the highest need and number of positions per year.
+There are a total of 5737 records with these two job titles in this data est. With this data I can get an idea of the pay, locations with the highest need and number of positions per year.
 Again we will look at the top 20 employers this time only for data analysts and data scientists.
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-14-1.png)
 
@@ -168,11 +173,12 @@ This is looks right the median salary in Minnesota is 64126 USD which is almost 
 
 Now I want to take a look at the positions for data analyst and data scientist in Minnesota.
 
-| JOB\_TITLE        |                                                                                                                                                                                                                                                                                        n|
-|:------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| DATA ANALYST      |                                                                                                                                                                                                                                                                                       66|
-| DATA SCIENTIST    |                                                                                                                                                                                                                                                                                        6|
-| The number of dat |  a analyst and data scientist in Minnesota is low I did not expect but looking at the top 20 in all of the United States I see that most of the data analyst and data scientist jobs with the big tech companies. I want to take a look at what companies are filling the 72 data roles.|
+| JOB\_TITLE     |    n|
+|:---------------|----:|
+| DATA ANALYST   |   66|
+| DATA SCIENTIST |    6|
+
+The number of data analyst and data scientist in Minnesota is low I did not expect but looking at the top 20 in all of the United States I see that most of the data analyst and data scientist jobs with the big tech companies. I want to take a look at what companies are filling the 72 data roles.
 
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-24-1.png)
 
@@ -191,6 +197,9 @@ Lets see what year.
 There this is a newer role 2015 and 2016 it would be interesting to see if this goes up in 2017.
 
 Because there is not much to see with the data analyst and data scientist role I would like to see what are the top 20 job titles in Minnesota.
-![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-27-1.png) This looks the same as the rest of the United States.
+
+![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-27-1.png)
+
+This looks the same as the rest of the United States.
 
 With all this data it is clear to see that there are more than enough jobs as software engineer or a computer programmer in the United States and in Minnesota. The job title data analyst and data scientist looks good in larger cities in the United States but Minnesota does not have a large number of employers that are sponsoring for this role. The median salary for the H1b visas is good this for educated people all over the country as this is a good indicator of pay and available jobs.

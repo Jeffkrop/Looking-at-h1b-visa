@@ -1,5 +1,5 @@
 ---
-title: "H1b Visa"
+title: "H1b Visa Applications"
 name: "Jeff Kropelnicki"
 date: "`r format(Sys.Date())`"
 output: github_document
@@ -32,15 +32,20 @@ Before looking at the data I would like to better understand the process a H1b a
       
 This data set is from the website Kaggle.com that being said the data may not be 100 percent correct. Reading the forums on the kaggle website one field I and other found challenging is what does certified- withdrawn, withdrawn , certified and certified withdrawn mean?   
 The metadata says   
+   
 **"The CASE_STATUS field denotes the status of the application after LCA processing. Certified applications are filed with USCIS for H-1B approval. CASE_STATUS: CERTIFIED does not mean the applicant got his/her H-1B visa approved, it just means that he/she is eligible to file an H-1B"**
    
 A user of the forum posted this:    
 As part of H-1 processing, first step is to file LCA w/ DOL.    
 
 Certified: Employer filed the LCA, which was approved by DOL   
+
 Certified Withdrawn: LCA was approved but later withdrawn by employer   
-Withdrawn: LCA was withdrawn by employer before approval   
+
+Withdrawn: LCA was withdrawn by employer before approval     
+
 Denied: LCA was denied by DOL.   
+
 I want to have a look at how this looks in the data.       
 ```{r}
 status <- h1b %>% filter(!is.na(CASE_STATUS)) %>%
@@ -76,10 +81,10 @@ ggplot(top_employers, aes(x = reorder(EMPLOYER_NAME, percent),
                       coord_flip()
 ```   
 
-This is the top only the top so making up `r sum(top_employers$percent)` percent of all the employers with H1b applicants.
+This is the top 20 so making up `r sum(top_employers$percent)` percent of all the employers with H1b applicants.
    
       
-Lets take a look at where the most H1B would working. 
+Lets take a look at where the most H1B would be working. 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 h1b <- h1b %>% separate(WORKSITE, c("city", "state"), ", ") %>% arrange(state)
 
@@ -208,7 +213,7 @@ ggplot(data = med_wage, aes(x = as.numeric(as.character(YEAR)), y = median_wage)
 The salary has not gone up that much there was a median salary increase of 7217.6 US dollars from 2011 to 2016.   
    
 
-Above we saw the top 20 job titles now I want to look at jobs that are data scientist or data analyst as I am working on a masters in data science. 
+Above we saw the top 20 job titles now I want to look at jobs that are **data scientist** or **data analyst** as I am working on a masters in data science. 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 data_jobs <- h1b %>% filter(JOB_TITLE == "DATA SCIENTIST" |JOB_TITLE == "DATA ANALYST") %>%
                      arrange(JOB_TITLE) 
@@ -218,7 +223,7 @@ data_job_count <- data_jobs %>% group_by(JOB_TITLE) %>%
 kable(data_job_count)
 ```   
    
-There are a total of 5737 rows with these two job titles in this data est. With this data I can get an idea of the pay, locations with the highest need and number of positions per year.   
+There are a total of 5737 records with these two job titles in this data est. With this data I can get an idea of the pay, locations with the highest need and number of positions per year.   
 Again we will look at the top 20 employers this time only for data analysts and data scientists.   
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 top_employers_data <- data_jobs %>% group_by(EMPLOYER_NAME) %>% 
@@ -339,16 +344,16 @@ The top employer is Tata Consultancy Services Limited, Infosys Limited, Wipro Li
 I would like to take a look at what cities have the largest number of employers sponsoring H1b visas.   
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 mn_city <- mn_h1b %>% group_by(city) %>% 
-                     summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
+                     summarise(count = n()) %>% 
                      arrange(desc(count)) %>% 
                      top_n(20, wt = count)
 
 
-ggplot(mn_city, aes(x = reorder(city, percent),
-                                y = percent, fill = city)) +
+ggplot(mn_city, aes(x = reorder(city, count),
+                                y = count, fill = city)) +
                   geom_bar(stat = "identity") +
-                  geom_text(aes(label = percent), vjust = 1, hjust = .5) +
-                  labs(x = "City", y = "Percent",  title = "Top 20 Cities In Minnesota") +
+                  geom_text(aes(label = count), vjust = 1, hjust = .5) +
+                  labs(x = "City", y = "Number of Applications",  title = "Top 20 Cities In Minnesota") +
                   theme(legend.position = "none") +
                   coord_flip()
 ```   
@@ -381,8 +386,9 @@ mn_data_job_count <- mn_data_jobs %>% group_by(JOB_TITLE) %>%
                                 count(JOB_TITLE)
 kable(mn_data_job_count)
 ```   
-The number of data analyst and data scientist in Minnesota is low I did not expect but looking at the top 20 in all of the United States I see that most of the data analyst and data scientist jobs with the big tech companies. I want to take a look at what companies are filling the 72 data roles.   
-   
+
+The number of data analyst and data scientist in Minnesota is low I did not expect but looking at the top 20 in all of the United States I see that most of the data analyst and data scientist jobs with the big tech companies. I want to take a look at what companies are filling the 72 data roles.      
+      
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 top_data_employers_mn <- mn_data_jobs %>% group_by(EMPLOYER_NAME) %>% 
                           summarise(count = n()) %>%
@@ -421,6 +427,7 @@ ggplot(top_SCIENTIST_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
 
 Only 3 companies that's interesting.   
 Lets see what year.   
+
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 mn_SCIENTIST_job_count <- mn_SCIENTIST_jobs %>% group_by(YEAR) %>%
                                 count(YEAR)
@@ -430,20 +437,24 @@ kable(mn_SCIENTIST_job_count)
 There this is a newer role 2015 and 2016 it would be interesting to see if this goes up in 2017.    
    
 Because there is not much to see with the data analyst and data scientist role I would like to see what are the top 20 job titles in Minnesota.   
+   
+   
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 mn_jobs <- mn_h1b %>% group_by(JOB_TITLE) %>% 
-                     summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
+                     summarise(count = n()) %>% 
                      arrange(desc(count)) %>% 
                      top_n(20, wt = count)
 
-ggplot(mn_jobs, aes(x = reorder(JOB_TITLE, percent),
-                                y = percent, fill = JOB_TITLE)) +
+ggplot(mn_jobs, aes(x = reorder(JOB_TITLE, count),
+                                y = count, fill = JOB_TITLE)) +
                   geom_bar(stat = "identity") +
-                  geom_text(aes(label = percent), vjust = 1, hjust = .5) +
-                  labs(x = "Job Title", y = "Percent", title = "Top 20 Job Titles") +
+                  geom_text(aes(label = count), vjust = 1, hjust = .5) +
+                  labs(x = "Job Title", y = "Number Of Positionss", title = "Top 20 Job Titles") +
                   theme(legend.position = "none") +
                   coord_flip()
 ```   
+   
+
 This looks the same as the rest of the United States.   
    
 With all this data it is clear to see that there are more than enough jobs as software engineer or a computer programmer in the United States and in Minnesota. The job title data analyst and data scientist looks good in larger cities in the United States but Minnesota does not have a large number of employers that are sponsoring for this role. The median salary for the H1b visas is good this for educated people all over the country as this is a good indicator of pay and available jobs.   
