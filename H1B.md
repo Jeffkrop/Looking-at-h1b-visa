@@ -7,7 +7,7 @@ A closer look at the H1b visa applications from 2011 to 2016. This is an interes
 because this is such a large data set I want to take the time to test the read times between read.csv with stringAsFactors = FALSE and read\_csv from the readr package.
 
     ##    user  system elapsed 
-    ##   7.999   0.435   8.821
+    ##   7.469   0.317   7.788
 
 3002458 rows read\_csv read the 469 MB file into R in under 8 seconds, it also shows the data types meaning I can avoid having to call str(). It takes the standard read.csv 49.353 seconds, this over a 5X speed increase.
 
@@ -147,3 +147,21 @@ Lets see what the top employers are in Minnesota.
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-20-1.png)
 
 The top employer is Tata Consultancy Services Limited, Infosys Limited, Wipro Limited and Accenture LLP are all employment agencies that place people at different work sites. The Mayo Clinic is a large employer in Rochester Minnesota. The University of Minnesota has also sponsored a lot of people but when you look at the list it looks like it is students, researchers, people working on their postdoctoral and assistant professor.
+
+I would like to take a look at what cities have the largest number of employers sponsering H1b visas.
+![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-21-1.png)
+
+Not much to see there, almost 50 percent are in Minneapolis while all others are in the Twincities metro area other than Rochester Minnesota which is where the Mayo Clinic is located.
+
+Lets take a look at the pay range in Minnesota.
+![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-22-1.png)
+
+|         |
+|--------:|
+|  66450.8|
+
+|       |
+|------:|
+|  64126|
+
+This is looks right the median salary in Minnesota is 64126 USD which is almost the same at the United States median salary seen above which is 64661 USD

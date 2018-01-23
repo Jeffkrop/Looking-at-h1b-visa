@@ -335,7 +335,45 @@ ggplot(top_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
                       coord_flip()
 ```   
    
-The top employer is Tata Consultancy Services Limited, Infosys Limited, Wipro Limited and Accenture LLP are all employment agencies that place people at different work sites. The Mayo Clinic is a large employer in Rochester Minnesota. The University of Minnesota has also sponsored a lot of people but when you look at the list it looks like it is students, researchers, people working on their postdoctoral and assistant professor. 
+The top employer is Tata Consultancy Services Limited, Infosys Limited, Wipro Limited and Accenture LLP are all employment agencies that place people at different work sites. The Mayo Clinic is a large employer in Rochester Minnesota. The University of Minnesota has also sponsored a lot of people but when you look at the list it looks like it is students, researchers, people working on their postdoctoral and assistant professor.   
+   
+I would like to take a look at what cities have the largest number of employers sponsering H1b visas.   
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+mn_city <- mn_h1b %>% group_by(city) %>% 
+                     summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
+                     arrange(desc(count)) %>% 
+                     top_n(20, wt = count)
+
+
+ggplot(mn_city, aes(x = reorder(city, percent),
+                                y = percent, fill = city)) +
+                  geom_bar(stat = "identity") +
+                  geom_text(aes(label = percent), vjust = 1, hjust = .5) +
+                  labs(x = "City", title = "Top 20 Cities In Minnesota") +
+                  theme(legend.position = "none") +
+                  coord_flip()
+```   
+
+Not much to see there, almost 50 percent are in Minneapolis while all others are in the Twincities metro area other than Rochester Minnesota which is where the Mayo Clinic is located.    
+   
+Lets take a look at the pay range in Minnesota.    
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+mn_wage <- subset(mn_h1b, mn_h1b$PREVAILING_WAGE < quantile(mn_h1b$PREVAILING_WAGE, 0.99, na.rm = T))
+
+ggplot(mn_wage, 
+    aes(x = PREVAILING_WAGE/1000)) +
+    geom_histogram(color = "black", fill = "red", binwidth = 2.5) +
+    scale_x_continuous(breaks = seq(0,150,25)) +
+    scale_y_continuous(breaks = seq(0,500000,25000)) +
+    labs(x = "Salary", title = "Yearly Salary")
+
+kable(round(mean(mn_wage$PREVAILING_WAGE, na.rm = TRUE),1))
+kable(round(median(mn_wage$PREVAILING_WAGE, na.rm = TRUE),1))
+```    
+
+This is looks right the median salary in Minnesota is 64126 USD which is almost the same at the United States median salary seen above which is 64661 USD
+
+
             
 
 
