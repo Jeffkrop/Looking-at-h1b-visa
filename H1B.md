@@ -7,7 +7,7 @@ A closer look at the H1b visa applications from 2011 to 2016. This is an interes
 because this is such a large data set I want to take the time to test the read times between read.csv with stringAsFactors = FALSE and read\_csv from the readr package.
 
     ##    user  system elapsed 
-    ##   7.469   0.317   7.788
+    ##   7.439   0.323   7.765
 
 3002458 rows read\_csv read the 469 MB file into R in under 8 seconds, it also shows the data types meaning I can avoid having to call str(). It takes the standard read.csv 49.353 seconds, this over a 5X speed increase.
 
@@ -148,10 +148,10 @@ Lets see what the top employers are in Minnesota.
 
 The top employer is Tata Consultancy Services Limited, Infosys Limited, Wipro Limited and Accenture LLP are all employment agencies that place people at different work sites. The Mayo Clinic is a large employer in Rochester Minnesota. The University of Minnesota has also sponsored a lot of people but when you look at the list it looks like it is students, researchers, people working on their postdoctoral and assistant professor.
 
-I would like to take a look at what cities have the largest number of employers sponsering H1b visas.
+I would like to take a look at what cities have the largest number of employers sponsoring H1b visas.
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-21-1.png)
 
-Not much to see there, almost 50 percent are in Minneapolis while all others are in the Twincities metro area other than Rochester Minnesota which is where the Mayo Clinic is located.
+Not much to see there, almost 50 percent are in Minneapolis while all others are in the Twin cities metro area other than Rochester Minnesota which is where the Mayo Clinic is located.
 
 Lets take a look at the pay range in Minnesota.
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-22-1.png)
@@ -164,4 +164,63 @@ Lets take a look at the pay range in Minnesota.
 |------:|
 |  64126|
 
-This is looks right the median salary in Minnesota is 64126 USD which is almost the same at the United States median salary seen above which is 64661 USD
+This is looks right the median salary in Minnesota is 64126 USD which is almost the same at the United States median salary seen above which is 64661 USD.
+
+Now I want to take a look at the positions for data analyst and data scientist in Minnesota.
+
+| JOB\_TITLE        |                                                                                                                                                                                                                                                                                        n|
+|:------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| DATA ANALYST      |                                                                                                                                                                                                                                                                                       66|
+| DATA SCIENTIST    |                                                                                                                                                                                                                                                                                        6|
+| The number of dat |  a analyst and data scientist in Minnesota is low I did not expect but looking at the top 20 in all of the United States I see that most of the data analyst and data scientist jobs with the big tech companies. I want to take a look at what companies are filling the 72 data roles.|
+
+``` r
+top_data_employers_mn <- mn_data_jobs %>% group_by(EMPLOYER_NAME) %>% 
+                          summarise(count = n()) %>%
+                          arrange(desc(count)) %>%
+                          top_n(10, wt = count) 
+
+ggplot(top_data_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
+                                y = count, fill = EMPLOYER_NAME)) + 
+                      geom_bar(stat = "identity")  +
+                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
+                      labs(x = "Employer Name", y = "Number of jobs", title = "Top 10 Employers in Minnesota", 
+                           subtitle = "Data Analysts and Data Scientists" ) +  
+                      theme(legend.position = "none") +
+                      coord_flip()
+```
+
+![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-24-1.png) I don't recognize any of these employers so lets look at only the data scientist role. There are only six total so we will see which companies are sponcering this role.
+
+``` r
+mn_SCIENTIST_jobs <- mn_h1b %>% filter(JOB_TITLE == "DATA SCIENTIST") %>%
+                     arrange(JOB_TITLE)   
+
+top_SCIENTIST_employers_mn <- mn_SCIENTIST_jobs %>% group_by(EMPLOYER_NAME) %>% 
+                          summarise(count = n()) %>%
+                          arrange(desc(count))  
+
+ggplot(top_SCIENTIST_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
+                                y = count, fill = EMPLOYER_NAME)) + 
+                      geom_bar(stat = "identity")  +
+                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
+                      labs(x = "Employer Name", y = "Number of jobs", title = "Top 10 Employers in Minnesota", 
+                           subtitle = "Data Analysts and Data Scientists" ) +  
+                      theme(legend.position = "none") +
+                      coord_flip()
+```
+
+![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-25-1.png) Only 3 companies thats interesting.
+Lets see what year.
+
+``` r
+mn_SCIENTIST_job_count <- mn_SCIENTIST_jobs %>% group_by(YEAR) %>%
+                                count(YEAR)
+kable(mn_SCIENTIST_job_count)
+```
+
+|     YEAR|                                                                                          n|
+|--------:|------------------------------------------------------------------------------------------:|
+|     2015|                                                                                          2|
+|     2016|                                                                                          4|
+|  There t|  his is a newer role 2015 and 2016 it would be interesting to see if this goes up in 2017.|

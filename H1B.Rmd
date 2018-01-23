@@ -93,7 +93,7 @@ ggplot(by_state, aes(x = reorder(state, percent),
                                 y = percent, fill = state)) +
                   geom_bar(stat = "identity") +
                   geom_text(aes(label = percent), vjust = 1, hjust = .5) +
-                  labs(x = "State", title = "Top 20 States") +
+                  labs(x = "State", y = "Percent", title = "Top 20 States") +
                   theme(legend.position = "none") +
                   coord_flip()
 ```    
@@ -111,7 +111,7 @@ ggplot(by_city, aes(x = reorder(city, percent),
                                 y = percent, fill = city)) +
                   geom_bar(stat = "identity") +
                   geom_text(aes(label = percent), vjust = 1, hjust = .5) +
-                  labs(x = "City", title = "Top 20 Cities") +
+                  labs(x = "City", y = "Percent", title = "Top 20 Cities") +
                   theme(legend.position = "none") +
                   coord_flip()
 ```    
@@ -329,15 +329,14 @@ ggplot(top_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
                                 y = count, fill = EMPLOYER_NAME)) + 
                       geom_bar(stat = "identity")  +
                       geom_text(aes(label = count), vjust = 1, hjust = .5) + 
-                      labs(x = "Employer Name", y = "Number of jobs", title = "Top 20 Employers in Minnesota", 
-                           subtitle = "Data Analysts and Data Scientists" ) +  
+                      labs(x = "Employer Name", y = "Number of jobs", title = "Top 20 Employers in Minnesota") +  
                       theme(legend.position = "none") +
                       coord_flip()
 ```   
    
 The top employer is Tata Consultancy Services Limited, Infosys Limited, Wipro Limited and Accenture LLP are all employment agencies that place people at different work sites. The Mayo Clinic is a large employer in Rochester Minnesota. The University of Minnesota has also sponsored a lot of people but when you look at the list it looks like it is students, researchers, people working on their postdoctoral and assistant professor.   
    
-I would like to take a look at what cities have the largest number of employers sponsering H1b visas.   
+I would like to take a look at what cities have the largest number of employers sponsoring H1b visas.   
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 mn_city <- mn_h1b %>% group_by(city) %>% 
                      summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
@@ -349,12 +348,12 @@ ggplot(mn_city, aes(x = reorder(city, percent),
                                 y = percent, fill = city)) +
                   geom_bar(stat = "identity") +
                   geom_text(aes(label = percent), vjust = 1, hjust = .5) +
-                  labs(x = "City", title = "Top 20 Cities In Minnesota") +
+                  labs(x = "City", y = "Percent",  title = "Top 20 Cities In Minnesota") +
                   theme(legend.position = "none") +
                   coord_flip()
 ```   
 
-Not much to see there, almost 50 percent are in Minneapolis while all others are in the Twincities metro area other than Rochester Minnesota which is where the Mayo Clinic is located.    
+Not much to see there, almost 50 percent are in Minneapolis while all others are in the Twin cities metro area other than Rochester Minnesota which is where the Mayo Clinic is located.    
    
 Lets take a look at the pay range in Minnesota.    
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
@@ -365,13 +364,74 @@ ggplot(mn_wage,
     geom_histogram(color = "black", fill = "red", binwidth = 2.5) +
     scale_x_continuous(breaks = seq(0,150,25)) +
     scale_y_continuous(breaks = seq(0,500000,25000)) +
-    labs(x = "Salary", title = "Yearly Salary")
+    labs(x = "Salary", title = "Yearly Salary In Minnesota")
 
 kable(round(mean(mn_wage$PREVAILING_WAGE, na.rm = TRUE),1))
 kable(round(median(mn_wage$PREVAILING_WAGE, na.rm = TRUE),1))
 ```    
 
-This is looks right the median salary in Minnesota is 64126 USD which is almost the same at the United States median salary seen above which is 64661 USD
+This is looks right the median salary in Minnesota is 64126 USD which is almost the same at the United States median salary seen above which is 64661 USD.   
+   
+Now I want to take a look at the positions for data analyst and data scientist in Minnesota.   
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+mn_data_jobs <- mn_h1b %>% filter(JOB_TITLE == "DATA SCIENTIST" |JOB_TITLE == "DATA ANALYST") %>%
+                     arrange(JOB_TITLE) 
+
+mn_data_job_count <- mn_data_jobs %>% group_by(JOB_TITLE) %>%
+                                count(JOB_TITLE)
+kable(mn_data_job_count)
+```   
+The number of data analyst and data scientist in Minnesota is low I did not expect but looking at the top 20 in all of the United States I see that most of the data analyst and data scientist jobs with the big tech companies. I want to take a look at what companies are filling the 72 data roles.   
+   
+```{r}
+top_data_employers_mn <- mn_data_jobs %>% group_by(EMPLOYER_NAME) %>% 
+                          summarise(count = n()) %>%
+                          arrange(desc(count)) %>%
+                          top_n(10, wt = count) 
+
+ggplot(top_data_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
+                                y = count, fill = EMPLOYER_NAME)) + 
+                      geom_bar(stat = "identity")  +
+                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
+                      labs(x = "Employer Name", y = "Number of jobs", title = "Top 10 Employers in Minnesota", 
+                           subtitle = "Data Analysts and Data Scientists" ) +  
+                      theme(legend.position = "none") +
+                      coord_flip()
+```   
+I don't recognize any of these employers so lets look at only the data scientist role. There are only six total so we will see which companies are sponcering this role.   
+   
+```{r}
+mn_SCIENTIST_jobs <- mn_h1b %>% filter(JOB_TITLE == "DATA SCIENTIST") %>%
+                     arrange(JOB_TITLE)   
+
+top_SCIENTIST_employers_mn <- mn_SCIENTIST_jobs %>% group_by(EMPLOYER_NAME) %>% 
+                          summarise(count = n()) %>%
+                          arrange(desc(count))  
+
+ggplot(top_SCIENTIST_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
+                                y = count, fill = EMPLOYER_NAME)) + 
+                      geom_bar(stat = "identity")  +
+                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
+                      labs(x = "Employer Name", y = "Number of jobs", title = "Top 10 Employers in Minnesota", 
+                           subtitle = "Data Analysts and Data Scientists" ) +  
+                      theme(legend.position = "none") +
+                      coord_flip()
+```   
+Only 3 companies thats interesting.   
+Lets see what year.   
+```{r}
+mn_SCIENTIST_job_count <- mn_SCIENTIST_jobs %>% group_by(YEAR) %>%
+                                count(YEAR)
+kable(mn_SCIENTIST_job_count)
+```   
+There this is a newer role 2015 and 2016 it would be interesting to see if this goes up in 2017.   
+
+
+
+
+
+
+
 
 
             
