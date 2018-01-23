@@ -47,7 +47,7 @@ Withdrawn: LCA was withdrawn by employer before approval
 Denied: LCA was denied by DOL.   
 
 I want to have a look at how this looks in the data.       
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 status <- h1b %>% filter(!is.na(CASE_STATUS)) %>%
                   group_by(CASE_STATUS) %>% 
                   summarise(status = round(n()*100/nrow(h1b),1))

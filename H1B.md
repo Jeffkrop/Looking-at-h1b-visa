@@ -7,7 +7,7 @@ A closer look at the H1b visa applications from 2011 to 2016. This is an interes
 because this is such a large data set I want to take the time to test the read times between read.csv with stringAsFactors = FALSE and read\_csv from the readr package.
 
     ##    user  system elapsed 
-    ##   8.060   0.381   8.466
+    ##   7.406   0.318   7.727
 
 3002458 rows read\_csv read the 469 MB file into R in under 8 seconds, it also shows the data types meaning I can avoid having to call str(). It takes the standard read.csv 49.353 seconds, this over a 5X speed increase.
 
@@ -32,21 +32,6 @@ Withdrawn: LCA was withdrawn by employer before approval
 Denied: LCA was denied by DOL.
 
 I want to have a look at how this looks in the data.
-
-``` r
-status <- h1b %>% filter(!is.na(CASE_STATUS)) %>%
-                  group_by(CASE_STATUS) %>% 
-                  summarise(status = round(n()*100/nrow(h1b),1))
-
-ggplot(status, aes(x = reorder(CASE_STATUS, status),
-                                y = status, fill = CASE_STATUS)) + 
-                      geom_bar(stat = "identity")  +
-                      geom_text(aes(label = status), vjust = 1, hjust = .5) + 
-                      labs(x = "Status", y = "Percentage", title = "Case Status") +  
-                      theme(legend.position = "none") +
-                      coord_flip()
-```
-
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
 
 87.1 percent of applicants got a certified status from 2011 to 2016. This means that 87.1 percent were told by a company that they would sponsor them if they applied for a visa.
