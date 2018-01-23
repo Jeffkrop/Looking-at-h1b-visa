@@ -7,7 +7,7 @@ A closer look at the H1b visa applications from 2011 to 2016. This is an interes
 because this is such a large data set I want to take the time to test the read times between read.csv with stringAsFactors = FALSE and read\_csv from the readr package.
 
     ##    user  system elapsed 
-    ##   7.439   0.323   7.765
+    ##   9.347   0.786  11.690
 
 3002458 rows read\_csv read the 469 MB file into R in under 8 seconds, it also shows the data types meaning I can avoid having to call str(). It takes the standard read.csv 49.353 seconds, this over a 5X speed increase.
 
@@ -174,53 +174,23 @@ Now I want to take a look at the positions for data analyst and data scientist i
 | DATA SCIENTIST    |                                                                                                                                                                                                                                                                                        6|
 | The number of dat |  a analyst and data scientist in Minnesota is low I did not expect but looking at the top 20 in all of the United States I see that most of the data analyst and data scientist jobs with the big tech companies. I want to take a look at what companies are filling the 72 data roles.|
 
-``` r
-top_data_employers_mn <- mn_data_jobs %>% group_by(EMPLOYER_NAME) %>% 
-                          summarise(count = n()) %>%
-                          arrange(desc(count)) %>%
-                          top_n(10, wt = count) 
+![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-24-1.png)
 
-ggplot(top_data_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
-                                y = count, fill = EMPLOYER_NAME)) + 
-                      geom_bar(stat = "identity")  +
-                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
-                      labs(x = "Employer Name", y = "Number of jobs", title = "Top 10 Employers in Minnesota", 
-                           subtitle = "Data Analysts and Data Scientists" ) +  
-                      theme(legend.position = "none") +
-                      coord_flip()
-```
+I don't recognize any of these employers so lets look at only the data scientist role. There are only six total so we will see which companies are sponsoring this role.
 
-![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-24-1.png) I don't recognize any of these employers so lets look at only the data scientist role. There are only six total so we will see which companies are sponcering this role.
+![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-25-1.png)
 
-``` r
-mn_SCIENTIST_jobs <- mn_h1b %>% filter(JOB_TITLE == "DATA SCIENTIST") %>%
-                     arrange(JOB_TITLE)   
-
-top_SCIENTIST_employers_mn <- mn_SCIENTIST_jobs %>% group_by(EMPLOYER_NAME) %>% 
-                          summarise(count = n()) %>%
-                          arrange(desc(count))  
-
-ggplot(top_SCIENTIST_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
-                                y = count, fill = EMPLOYER_NAME)) + 
-                      geom_bar(stat = "identity")  +
-                      geom_text(aes(label = count), vjust = 1, hjust = .5) + 
-                      labs(x = "Employer Name", y = "Number of jobs", title = "Top 10 Employers in Minnesota", 
-                           subtitle = "Data Analysts and Data Scientists" ) +  
-                      theme(legend.position = "none") +
-                      coord_flip()
-```
-
-![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-25-1.png) Only 3 companies thats interesting.
+Only 3 companies that's interesting.
 Lets see what year.
 
-``` r
-mn_SCIENTIST_job_count <- mn_SCIENTIST_jobs %>% group_by(YEAR) %>%
-                                count(YEAR)
-kable(mn_SCIENTIST_job_count)
-```
+|  YEAR|    n|
+|-----:|----:|
+|  2015|    2|
+|  2016|    4|
 
-|     YEAR|                                                                                          n|
-|--------:|------------------------------------------------------------------------------------------:|
-|     2015|                                                                                          2|
-|     2016|                                                                                          4|
-|  There t|  his is a newer role 2015 and 2016 it would be interesting to see if this goes up in 2017.|
+There this is a newer role 2015 and 2016 it would be interesting to see if this goes up in 2017.
+
+Because there is not much to see with the data analyst and data scientist role I would like to see what are the top 20 job titles in Minnesota.
+![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-27-1.png) This looks the same as the rest of the United States.
+
+With all this data it is clear to see that there are more than enough jobs as software engineer or a computer programmer in the United States and in Minnesota. The job title data analyst and data scientist looks good in larger cities in the United States but Minnesota does not have a large number of employers that are sponsoring for this role. The median salary for the H1b visas is good this for educated people all over the country as this is a good indicator of pay and available jobs.

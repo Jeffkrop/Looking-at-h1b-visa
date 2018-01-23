@@ -383,7 +383,7 @@ kable(mn_data_job_count)
 ```   
 The number of data analyst and data scientist in Minnesota is low I did not expect but looking at the top 20 in all of the United States I see that most of the data analyst and data scientist jobs with the big tech companies. I want to take a look at what companies are filling the 72 data roles.   
    
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 top_data_employers_mn <- mn_data_jobs %>% group_by(EMPLOYER_NAME) %>% 
                           summarise(count = n()) %>%
                           arrange(desc(count)) %>%
@@ -398,9 +398,10 @@ ggplot(top_data_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
                       theme(legend.position = "none") +
                       coord_flip()
 ```   
-I don't recognize any of these employers so lets look at only the data scientist role. There are only six total so we will see which companies are sponcering this role.   
+
+I don't recognize any of these employers so lets look at only the data scientist role. There are only six total so we will see which companies are sponsoring this role.   
    
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 mn_SCIENTIST_jobs <- mn_h1b %>% filter(JOB_TITLE == "DATA SCIENTIST") %>%
                      arrange(JOB_TITLE)   
 
@@ -417,14 +418,36 @@ ggplot(top_SCIENTIST_employers_mn, aes(x = reorder(EMPLOYER_NAME, count),
                       theme(legend.position = "none") +
                       coord_flip()
 ```   
-Only 3 companies thats interesting.   
+
+Only 3 companies that's interesting.   
 Lets see what year.   
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 mn_SCIENTIST_job_count <- mn_SCIENTIST_jobs %>% group_by(YEAR) %>%
                                 count(YEAR)
 kable(mn_SCIENTIST_job_count)
 ```   
-There this is a newer role 2015 and 2016 it would be interesting to see if this goes up in 2017.   
+
+There this is a newer role 2015 and 2016 it would be interesting to see if this goes up in 2017.    
+   
+Because there is not much to see with the data analyst and data scientist role I would like to see what are the top 20 job titles in Minnesota.   
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+mn_jobs <- mn_h1b %>% group_by(JOB_TITLE) %>% 
+                     summarise(count = n(), percent = round(count*100/nrow(h1b),2)) %>% 
+                     arrange(desc(count)) %>% 
+                     top_n(20, wt = count)
+
+ggplot(mn_jobs, aes(x = reorder(JOB_TITLE, percent),
+                                y = percent, fill = JOB_TITLE)) +
+                  geom_bar(stat = "identity") +
+                  geom_text(aes(label = percent), vjust = 1, hjust = .5) +
+                  labs(x = "Job Title", y = "Percent", title = "Top 20 Job Titles") +
+                  theme(legend.position = "none") +
+                  coord_flip()
+```   
+This looks the same as the rest of the United States.   
+   
+With all this data it is clear to see that there are more than enough jobs as software engineer or a computer programmer in the United States and in Minnesota. The job title data analyst and data scientist looks good in larger cities in the United States but Minnesota does not have a large number of employers that are sponsoring for this role. The median salary for the H1b visas is good this for educated people all over the country as this is a good indicator of pay and available jobs.   
+
 
 
 
