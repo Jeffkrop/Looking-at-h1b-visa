@@ -1,13 +1,13 @@
 H1b Visa Applications
 ================
-2018-01-23
+2018-01-24
 
-A closer look at the H1b visa applications from 2011 to 2016. This is an interesting data set today because of all the talk of cutting back on the number of H1b visas that will be allowed in the upcoming years. Thought this document I will explore the 3002458 rows in this data set.
+A closer look at the H1b visa applications from 2011 to 2016. This is an interesting dataset today because of all the talk of cutting back on the number of H1b visas that will be allowed in the upcoming years. Thought this document I will explore the 3002458 rows in this dataset.
 
-because this is such a large data set I want to take the time to test the read times between read.csv with stringAsFactors = FALSE and read\_csv from the readr package.
+because this is such a large dataset I want to take the time to test the read times between read.csv with stringAsFactors = FALSE and read\_csv from the readr package.
 
     ##    user  system elapsed 
-    ##   7.406   0.318   7.727
+    ##   9.742   0.758  11.985
 
 3002458 rows read\_csv read the 469 MB file into R in under 8 seconds, it also shows the data types meaning I can avoid having to call str(). It takes the standard read.csv 49.353 seconds, this over a 5X speed increase.
 
@@ -15,7 +15,7 @@ Before looking at the data I would like to better understand the process a H1b a
 
 ![Caption for the picture.](H1B-Application-Process.png)
 
-This data set is from the website Kaggle.com that being said the data may not be 100 percent correct. Reading the forums on the kaggle website one field I and other found challenging is what does certified- withdrawn, withdrawn , certified and certified withdrawn mean?
+This dataset is from the website Kaggle.com that being said the data may not be 100 percent correct. Reading the forums on the kaggle website one field I and other found challenging is what does certified- withdrawn, withdrawn , certified and certified withdrawn mean?
 The metadata says
 
 **"The CASE\_STATUS field denotes the status of the application after LCA processing. Certified applications are filed with USCIS for H-1B approval. CASE\_STATUS: CERTIFIED does not mean the applicant got his/her H-1B visa approved, it just means that he/she is eligible to file an H-1B"**
@@ -23,13 +23,13 @@ The metadata says
 A user of the forum posted this:
 As part of H-1 processing, first step is to file LCA w/ DOL.
 
-Certified: Employer filed the LCA, which was approved by DOL
+•Certified: Employer filed the LCA, which was approved by DOL
 
-Certified Withdrawn: LCA was approved but later withdrawn by employer
+•Certified Withdrawn: LCA was approved but later withdrawn by employer
 
-Withdrawn: LCA was withdrawn by employer before approval
+•Withdrawn: LCA was withdrawn by employer before approval
 
-Denied: LCA was denied by DOL.
+•Denied: LCA was denied by DOL.
 
 I want to have a look at how this looks in the data.
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
@@ -63,13 +63,13 @@ Full time verse part time. Full time means that the applicant is hired by the co
 
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-9-1.png)
 
-We can see that most positions are full time. Because the data set is from 2011 to 2016 I want to see if this has changed over the years.
+We can see that most positions are full time. Because the dataset is from 2011 to 2016 I want to see if this has changed over the years.
 
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-10-1.png)
 
 This is interesting in 2016 this was a change from full time to part time positions.
 
-There is a column for wage in this data set. Looking at the metadata the Prevailing Wage column is:
+There is a column for wage in this dataset. Looking at the metadata the Prevailing Wage column is:
 
 **Prevailing Wage for the job being requested for temporary labor condition. The wage is listed at annual scale in USD. The prevailing wage for a job position is defined as the average wage paid to similarly employed workers in the requested occupation in the area of intended employment. The prevailing wage is based on the employer’s minimum requirements for the position.**
 
@@ -105,10 +105,10 @@ Most of the big name tech companies are on that list but the number of data peop
 I want to look what city the jobs are in
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-15-1.png)
 
-New York tops the list again here followed close by San Francisco then it is the top United States cites as you go down the list. This is interesting but with such a small data set maybe looking at it by state would be better.
+New York tops the list again here followed close by San Francisco then it is the top United States cites as you go down the list. This is interesting but with such a small dataset maybe looking at it by state would be better.
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-16-1.png)
 
-Here again I am showing only the top 20 but when I look at the whole data set 46 states had at least one H1b applicant. The state I am from Minnesota is number 16 on the list but with only 72 applicants. California had more than double New York, but this is where most of the big tech companies are located.
+Here again I am showing only the top 20 but when I look at the whole dataset 46 states had at least one H1b applicant. The state I am from Minnesota is number 16 on the list but with only 72 applicants. California had more than double New York, but this is where most of the big tech companies are located.
 
 Next lets look at the salary for the data scientist and data analysts.
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-17-1.png)
@@ -121,7 +121,7 @@ Next lets look at the salary for the data scientist and data analysts.
 |------:|
 |  63814|
 
-There are some jobs in this data set with low pay under $25000 but the median salary is 63814 USD. This may be lower because I am looking at two different positions data analyst and data scientist. The data scientist role tends to pay a higher wage.
+There are some jobs in this dataset with low pay under $25000 but the median salary is 63814 USD. This may be lower because I am looking at two different positions data analyst and data scientist. The data scientist role tends to pay a higher wage.
 
 How has the salary changed over the years from 2011 to 2016?
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-18-1.png)
@@ -131,7 +131,7 @@ This is not bad the trend is up more the $10000 and this could be due to high pa
 **Because I am working on a Masters in Data Science in Minnesota I would like to look at the data for only my home state.**
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-19-1.png)
 
-Looking at the map most are located in the Twin Cities metro but when I look at the data set there are 2465 locations that do no have a latitude and longitude. A quick look at some of the locations that are missing I see places that are not in the metro like Grand Rapids, Pipestone, Red Wing and Alexandria.
+Looking at the map most are located in the Twin Cities metro but when I look at the dataset there are 2465 locations that do no have a latitude and longitude. A quick look at some of the locations that are missing I see places that are not in the metro like Grand Rapids, Pipestone, Red Wing and Alexandria.
 
 Lets see what the top employers are in Minnesota.
 ![](H1B_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-20-1.png)
